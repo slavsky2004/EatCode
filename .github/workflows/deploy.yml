@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: ghcr.io  # GitHub Container Registry
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: slavsky2004/eatcode
 
 jobs:
   # JOB 1: Сборка и публикация Docker образа
