@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Счётчик калорий | Трекер питания</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f7f0 0%, #e2e9e2 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* главная карточка */
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(2px);
+            border-radius: 2.5rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 2px 5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            padding: 2rem 2rem 2rem 2rem;
+            transition: all 0.2s ease;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2b6e3c, #1f8a4c);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+
+        .subhead {
+            color: #4a5b4e;
+            border-left: 4px solid #3cac6b;
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        /* две колонки */
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .form-panel {
+            flex: 1.2;
+            min-width: 280px;
+        }
+
+        .list-panel {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        /* стили форм */
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #1e2f24;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        label i {
+            font-style: normal;
+            font-size: 1.2rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.85rem 1rem;
+            border-radius: 1.5rem;
+            border: 1.5px solid #dde5df;
+            background: white;
+            font-size: 1rem;
+            transition: 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: #3cac6b;
+            box-shadow: 0 0 0 3px rgba(60, 172, 107, 0.2);
+        }
+
+        button {
+            background: #2e7d5e;
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.85rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        button:hover {
+            background: #1f6749;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 18px -6px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: #5b6e64;
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: #44564b;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid #cbdcd2;
+            color: #2b4b3a;
+            box-shadow: none;
+        }
+
+        .btn-outline:hover {
+            background: #eef4f0;
+            border-color: #3cac6b;
+            transform: translateY(-1px);
+        }
+
+        .stats {
+            background: #eef4ef;
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-block {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            color: #517b64;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1e422f;
+            line-height: 1;
+        }
+
+        .stat-unit {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6a8b78;
+        }
+
+        /* таблица продуктов */
+        .food-table {
+            background: white;
+            border-radius: 1.8rem;
+            overflow: auto;
+            box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem 1rem;
+            background: #f9fbf9;
+            color: #2f5c46;
+            font-weight: 600;
+            border-bottom: 2px solid #e2ede6;
+        }
+
+        td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #ecf3ef;
+            vertical-align: middle;
+        }
+
+        .food-name {
+            font-weight: 600;
+            color: #1f3d2f;
+        }
+
+        .kcal-badge {
+            background: #eef5f0;
+            border-radius: 40px;
+            padding: 0.2rem 0.8rem;
+            display: inline-block;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #268e56;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #bfcbc2;
+            transition: 0.2s;
+            padding: 0 0.3rem;
+            width: auto;
+            box-shadow: none;
+        }
+
+        .delete-btn:hover {
+            color: #dc4c4c;
+            background: none;
+            transform: scale(1.1);
+        }
+
+        .empty-row td {
+            text-align: center;
+            color: #8aa398;
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-bar button {
+            flex: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: #5b7867;
+        }
+
+        @media (max-width: 760px) {
+            .main-card {
+                padding: 1.5rem;
+            }
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            th, td {
+                padding: 0.7rem;
+            }
+        }
+
+        .warning {
+            background: #fff3e0;
+            border-radius: 1.2rem;
+            padding: 0.6rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #b95f1a;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="main-card">
+        <h1>🥗 Счётчик калорий</h1>
+        <div class="subhead">Добавляйте продукты, отслеживайте дневную норму и контролируйте питание</div>
+
+        <div class="dashboard">
+            <!-- Левая панель: добавление продукта -->
+            <div class="form-panel">
+                <div class="stats">
+                    <div class="stat-block">
+                        <div class="stat-label">🔥 Всего калорий</div>
+                        <div class="stat-value" id="totalCalories">0</div>
+                        <div class="stat-unit">ккал</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-label">🥩 Белки</div>
+                        <div class="stat-value" id="totalProtein">0</div>
+                        <div class="stat-unit">г</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-label">🍚 Жиры</div>
+                        <div class="stat-value" id="totalFat">0</div>
+                        <div class="stat-unit">г</div>
+                    </div>
+                    <div class="stat-block">
+                        <div class="stat-label">🌾 Углеводы</div>
+                        <div class="stat-value" id="totalCarbs">0</div>
+                        <div class="stat-unit">г</div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>🍎 Название продукта</label>
+                    <input type="text" id="foodName" placeholder="Например: Овсянка, Куриная грудка, Яблоко" autocomplete="off">
+                </div>
+
+                <div class="input-group">
+                    <label>⚖️ Вес / порция (граммы)</label>
+                    <input type="number" id="foodWeight" placeholder="100" value="100" step="1" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>📊 Калорийность на 100 г (ккал)</label>
+                    <input type="number" id="foodCalories" placeholder="ккал на 100г" step="1" min="0">
+                </div>
+
+                <div class="input-group" style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                    <div style="flex:1">
+                        <label>💪 Белки (г/100г)</label>
+                        <input type="number" id="foodProtein" placeholder="0" step="0.1" min="0" value="0">
+                    </div>
+                    <div style="flex:1">
+                        <label>🧈 Жиры (г/100г)</label>
+                        <input type="number" id="foodFat" placeholder="0" step="0.1" min="0" value="0">
+                    </div>
+                    <div style="flex:1">
+                        <label>🍚 Углеводы (г/100г)</label>
+                        <input type="number" id="foodCarbs" placeholder="0" step="0.1" min="0" value="0">
+                    </div>
+                </div>
+
+                <button id="addBtn">➕ Добавить продукт</button>
+                <div class="warning" id="formWarning"></div>
+            </div>
+
+            <!-- Правая панель: список продуктов -->
+            <div class="list-panel">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                    <h3 style="color:#2b5e45;">📋 Дневной рацион</h3>
+                    <span id="itemCount" style="background:#e2ede6; padding:0.2rem 0.7rem; border-radius:40px; font-size:0.8rem;">0 позиций</span>
+                </div>
+                <div class="food-table">
+                    <table id="foodTable">
+                        <thead>
+                            <tr><th>Продукт</th><th>Вес (г)</th><th>Ккал</th><th>Б/Ж/У</th><th style="width: 50px"></th></tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            <tr class="empty-row"><td colspan="5">✨ Добавьте первый продукт, чтобы начать учёт</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="action-bar">
+                    <button id="clearAllBtn" class="btn-outline">🗑 Очистить всё</button>
+                    <button id="exampleBtn" class="btn-secondary">🍽 Примеры (заполнить демо)</button>
+                </div>
+            </div>
+        </div>
+        <footer>
+            💡 Совет: калории и БЖУ пересчитываются автоматически под ваш вес порции. Данные хранятся в браузере.
+        </footer>
+    </div>
+</div>
+
+<script>
+    // --- Хранилище продуктов ---
+    let foodItems = [];   // каждый элемент: { id, name, weight, calsPer100, proteinPer100, fatPer100, carbsPer100 }
+
+    // Элементы DOM
+    const totalCaloriesSpan = document.getElementById('totalCalories');
+    const totalProteinSpan = document.getElementById('totalProtein');
+    const totalFatSpan = document.getElementById('totalFat');
+    const totalCarbsSpan = document.getElementById('totalCarbs');
+    const tableBody = document.getElementById('tableBody');
+    const itemCountSpan = document.getElementById('itemCount');
+    const formWarningDiv = document.getElementById('formWarning');
+
+    // Поля ввода
+    const foodNameInput = document.getElementById('foodName');
+    const foodWeightInput = document.getElementById('foodWeight');
+    const foodCaloriesInput = document.getElementById('foodCalories');
+    const foodProteinInput = document.getElementById('foodProtein');
+    const foodFatInput = document.getElementById('foodFat');
+    const foodCarbsInput = document.getElementById('foodCarbs');
+
+    // Кнопки
+    const addBtn = document.getElementById('addBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const exampleBtn = document.getElementById('exampleBtn');
+
+    // --- Вспомогательные функции ---
+    function saveToLocalStorage() {
+        localStorage.setItem('calorieTrackerData', JSON.stringify(foodItems));
+    }
+
+    function loadFromLocalStorage() {
+        const saved = localStorage.getItem('calorieTrackerData');
+        if (saved) {
+            try {
+                foodItems = JSON.parse(saved);
+                // валидация (убедимся, что все поля есть)
+                foodItems = foodItems.filter(item => item && typeof item === 'object' && item.name);
+                renderTableAndTotals();
+            } catch(e) { console.warn(e); }
+        } else {
+            // нет данных — пустой массив
+            foodItems = [];
+            renderTableAndTotals();
+        }
+    }
+
+    // пересчет итогов и отрисовка
+    function calculateTotals() {
+        let totalKcal = 0, totalProt = 0, totalFatSum = 0, totalCarbSum = 0;
+        for (let item of foodItems) {
+            const factor = item.weight / 100;
+            const kcalItem = item.calsPer100 * factor;
+            const protItem = item.proteinPer100 * factor;
+            const fatItem = item.fatPer100 * factor;
+            const carbItem = item.carbsPer100 * factor;
+
+            totalKcal += kcalItem;
+            totalProt += protItem;
+            totalFatSum += fatItem;
+            totalCarbSum += carbItem;
+        }
+        // отображаем с округлением до 1 знака
+        totalCaloriesSpan.innerText = Math.round(totalKcal);
+        totalProteinSpan.innerText = totalProt.toFixed(1);
+        totalFatSpan.innerText = totalFatSum.toFixed(1);
+        totalCarbsSpan.innerText = totalCarbSum.toFixed(1);
+        itemCountSpan.innerText = `${foodItems.length} ${declension(foodItems.length, 'позиция', 'позиции', 'позиций')}`;
+    }
+
+    function declension(n, one, two, five) {
+        n = Math.abs(n) % 100;
+        if (n >= 5 && n <= 20) return five;
+        n %= 10;
+        if (n === 1) return one;
+        if (n >= 2 && n <= 4) return two;
+        return five;
+    }
+
+    function renderTableAndTotals() {
+        // очистка tbody
+        tableBody.innerHTML = '';
+        if (foodItems.length === 0) {
+            const emptyRow = document.createElement('tr');
+            emptyRow.className = 'empty-row';
+            emptyRow.innerHTML = '<td colspan="5">🍽️ Список пуст. Добавьте блюда или нажмите "Примеры"</td>';
+            tableBody.appendChild(emptyRow);
+            calculateTotals();
+            return;
+        }
+
+        for (let i = 0; i < foodItems.length; i++) {
+            const item = foodItems[i];
+            const factor = item.weight / 100;
+            const finalKcal = item.calsPer100 * factor;
+            const finalProtein = item.proteinPer100 * factor;
+            const finalFat = item.fatPer100 * factor;
+            const finalCarbs = item.carbsPer100 * factor;
+
+            const row = document.createElement('tr');
+
+            // название продукта
+            const nameCell = document.createElement('td');
+            nameCell.className = 'food-name';
+            nameCell.innerText = item.name;
+            row.appendChild(nameCell);
+
+            // вес
+            const weightCell = document.createElement('td');
+            weightCell.innerText = `${item.weight} г`;
+            row.appendChild(weightCell);
+
+            // калории
+            const kcalCell = document.createElement('td');
+            kcalCell.innerHTML = `<span class="kcal-badge">${Math.round(finalKcal)}</span>`;
+            row.appendChild(kcalCell);
+
+            // бжу кратко
+            const macrosCell = document.createElement('td');
+            macrosCell.style.fontSize = '0.8rem';
+            macrosCell.style.color = '#416a55';
+            macrosCell.innerText = `${finalProtein.toFixed(1)}/${finalFat.toFixed(1)}/${finalCarbs.toFixed(1)} г`;
+            row.appendChild(macrosCell);
+
+            // кнопка удаления
+            const actionCell = document.createElement('td');
+            const delBtn = document.createElement('button');
+            delBtn.innerText = '✕';
+            delBtn.className = 'delete-btn';
+            delBtn.setAttribute('aria-label', 'Удалить');
+            delBtn.addEventListener('click', (function(index) {
+                return function() { removeItem(index); };
+            })(i));
+            actionCell.appendChild(delBtn);
+            row.appendChild(actionCell);
+
+            tableBody.appendChild(row);
+        }
+        calculateTotals();
+    }
+
+    function removeItem(index) {
+        if (index >= 0 && index < foodItems.length) {
+            foodItems.splice(index, 1);
+            saveToLocalStorage();
+            renderTableAndTotals();
+            clearFormWarning();
+        }
+    }
+
+    function addFoodItem() {
+        // валидация
+        let name = foodNameInput.value.trim();
+        if (name === "") {
+            showWarning("❌ Введите название продукта");
+            return;
+        }
+        let weight = parseFloat(foodWeightInput.value);
+        if (isNaN(weight) || weight <= 0) {
+            showWarning("⚠️ Введите корректный вес (граммы > 0)");
+            return;
+        }
+        let cals = parseFloat(foodCaloriesInput.value);
+        if (isNaN(cals) || cals < 0) {
+            showWarning("📊 Укажите калорийность на 100 г (число ≥ 0)");
+            return;
+        }
+        let protein = parseFloat(foodProteinInput.value);
+        let fat = parseFloat(foodFatInput.value);
+        let carbs = parseFloat(foodCarbsInput.value);
+        if (isNaN(protein)) protein = 0;
+        if (isNaN(fat)) fat = 0;
+        if (isNaN(carbs)) carbs = 0;
+
+        const newItem = {
+            id: Date.now() + Math.random() * 10000,
+            name: name,
+            weight: weight,
+            calsPer100: cals,
+            proteinPer100: protein,
+            fatPer100: fat,
+            carbsPer100: carbs
+        };
+        foodItems.push(newItem);
+        saveToLocalStorage();
+        renderTableAndTotals();
+
+        // сброс полей (кроме веса, оставляем 100 для удобства)
+        foodNameInput.value = '';
+        foodCaloriesInput.value = '';
+        foodProteinInput.value = '0';
+        foodFatInput.value = '0';
+        foodCarbsInput.value = '0';
+        foodWeightInput.value = '100';
+        clearFormWarning();
+
+        // фокус на название
+        foodNameInput.focus();
+    }
+
+    function clearAllItems() {
+        if (foodItems.length > 0 && confirm('🗑 Удалить все продукты из дневного рациона?')) {
+            foodItems = [];
+            saveToLocalStorage();
+            renderTableAndTotals();
+            clearFormWarning();
+        } else if (foodItems.length === 0) {
+            showWarning('Список и так пуст');
+            setTimeout(() => clearFormWarning(), 1500);
+        }
+    }
+
+    function showWarning(msg) {
+        formWarningDiv.innerText = msg;
+        formWarningDiv.style.opacity = '1';
+    }
+
+    function clearFormWarning() {
+        formWarningDiv.innerText = '';
+    }
+
+    // Заполнение примерами (популярные продукты с БЖУ)
+    function loadExamples() {
+        if (foodItems.length > 0) {
+            if (!confirm('Примеры добавятся к текущему списку. Продолжить?')) return;
+        }
+        const examples = [
+            { name: "🍚 Гречневая каша (варёная)", weight: 150, cals: 110, prot: 3.6, fat: 1.2, carbs: 21.3 },
+            { name: "🍗 Куриная грудка (отварная)", weight: 180, cals: 165, prot: 31, fat: 3.6, carbs: 0 },
+            { name: "🥑 Авокадо", weight: 100, cals: 160, prot: 2, fat: 14.7, carbs: 8.5 },
+            { name: "🥚 Яйцо куриное (2 шт)", weight: 110, cals: 155, prot: 12.6, fat: 10.6, carbs: 1.1 },
+            { name: "🍎 Яблоко", weight: 180, cals: 52, prot: 0.3, fat: 0.2, carbs: 13.8 },
+            { name: "🥛 Творог 5%", weight: 120, cals: 121, prot: 15, fat: 5, carbs: 3 }
+        ];
+
+        for (let ex of examples) {
+            foodItems.push({
+                id: Date.now() + Math.random() * 10000 + ex.name,
+                name: ex.name,
+                weight: ex.weight,
+                calsPer100: ex.cals,
+                proteinPer100: ex.prot,
+                fatPer100: ex.fat,
+                carbsPer100: ex.carbs
+            });
+        }
+        saveToLocalStorage();
+        renderTableAndTotals();
+        clearFormWarning();
+        showTemporaryMessage('✅ Добавлены примеры блюд!');
+    }
+
+    function showTemporaryMessage(msg) {
+        const originalMsg = formWarningDiv.innerText;
+        formWarningDiv.innerText = msg;
+        formWarningDiv.style.color = '#2a7a4b';
+        setTimeout(() => {
+            if (formWarningDiv.innerText === msg) {
+                formWarningDiv.innerText = '';
+                formWarningDiv.style.color = '#b95f1a';
+            } else {
+                formWarningDiv.style.color = '#b95f1a';
+            }
+        }, 1800);
+    }
+
+    // Быстрый парсер из полей: если пользователь ввел калорийность, а белки/жиры/углеводы могут быть пустыми - норм.
+    // дополнительная проверка на целостность при добавлении
+
+    // Обработчики
+    addBtn.addEventListener('click', addFoodItem);
+    clearAllBtn.addEventListener('click', clearAllItems);
+    exampleBtn.addEventListener('click', loadExamples);
+
+    // Enter в любом поле можно добавить
+    const inputsForEnter = [foodNameInput, foodWeightInput, foodCaloriesInput, foodProteinInput, foodFatInput, foodCarbsInput];
+    inputsForEnter.forEach(inp => {
+        inp.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addFoodItem();
+            }
+        });
+    });
+
+    // Инициализация: загружаем из localStorage
+    loadFromLocalStorage();
+    // для красоты показываем подсказку если данные есть
+    if (foodItems.length === 0) {
+        // можно показать легкую подсказку
+        setTimeout(() => {
+            if(foodItems.length === 0 && !formWarningDiv.innerText) {
+                formWarningDiv.innerText = '💡 Начните с кнопки "Примеры" или добавьте свой продукт';
+                setTimeout(() => {
+                    if(formWarningDiv.innerText === '💡 Начните с кнопки "Примеры" или добавьте свой продукт')
+                        formWarningDiv.innerText = '';
+                }, 4000);
+            }
+        }, 500);
+    }
+</script>
+</body>
+</html>
